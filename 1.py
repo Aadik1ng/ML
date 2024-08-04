@@ -1,38 +1,20 @@
-#Program: For a given set of training data examples stored in a .CSV file, implement and demonstrate the Find-S algorithm to output a description of the set of all hypotheses 
-#consistent with the training examples.
-    
 import csv
 
-hypo = []
-data = []
+def find_s_algorithm(filename):
+    with open(filename, 'r') as csv_file:
+        data = [line for line in csv.reader(csv_file) if line[-1] == "Yes"]
 
-with open('enjoysport.csv') as csv_file:
-    fd = csv.reader(csv_file)
+    if not data:
+        print("\nNo positive examples found.")
+        return
+
+    hypo = data[0][:-1]
     
-    print("\nThe given training examples are:")
-    for line in fd:
-        print(line)
-        
-        if line[-1] == "Yes":
-            data.append(line)
+    for example in data[1:]:
+        hypo = [h if h == e else '?' for h, e in zip(hypo, example[:-1])]
     
-    print("\nThe positive examples are:")
-    for x in data:
-        print(x)
-    
-   
-    row = len(data)
-    col = len(data[0]) if data else 0
-    
-    
-    hypo = data[0][:col-1] 
-    
-    
-    for i in range(1, row):
-        for j in range(col-1): 
-            if hypo[j] != data[i][j]:
-                hypo[j] = '?'
-    
-    
-    print("\nThe maximally specific Find-S hypothesis for the given training examples is:")
+    print("\nMaximally specific Find-S hypothesis:")
     print(hypo)
+
+# Example usage
+find_s_algorithm('enjoysport.csv')
