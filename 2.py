@@ -1,50 +1,28 @@
-#Program: For a given set of training data examples stored in a .CSV file, implement anddemonstrate the Candidate-Elimination algorithm to output a description of the set of all hypotheses consistent with the training examples.
+import pandas as pd
 
-import csv
+data = pd.read_csv('enjoysport.csv')
+concepts = data.iloc[:, :-1].values
+target = data.iloc[:, -1].values
 
-hypo = []
-data = []
-temp = []
-gen = ['?', '?', '?', '?', '?', '?']
+def learn(concepts, target):
+    specific_h = concepts[0].copy()
+    general_h = [['?' for _ in range(len(specific_h))] for _ in range(len(specific_h))]
+    for i, h in enumerate(concepts):
+        if target[i] == "yes":
+            for x in range(len(specific_h)):
+                if h[x] != specific_h[x]:
+                    specific_h[x] = '?'
+                    general_h[x][x] = '?'
+        else:
+            for x in range(len(specific_h)):
+                if h[x] != specific_h[x]:
+                    general_h[x][x] = specific_h[x]
+                else:
+                    general_h[x][x] = '?'
 
-with open('enjoysport.csv') as csv_file:
-    fd = csv.reader(csv_file)
-    print("\nThe given training examples are:")
-    for line in fd:
-        print(line)
-        temp.append(line)
-        if line[-1].strip().lower() == "yes":
-            data.append(line)
+    general_h = [h for h in general_h if h != ['?' * len(specific_h)]]
+    return specific_h, general_h
 
-print("\nThe positive examples are:")
-for line in data:
-    print(line)
-
-    print("\nThe final specific output:")
-    row = len(data)
-    col = len(data[0])
-
-    for j in range(col - 1):
-        hypo.append(data[0][j])
-
-    for i in range(row):
-        for j in range(col - 1):
-            if hypo[j] != data[i][j]:
-                hypo[j] = '?'
-print(hypo)
-
-print("\nThe final Generalize output:")
-row = len(temp)
-col = len(temp[0])
-
-for i in range(row):
-    if temp[i][-1].strip().lower() == "no":
-        for j in range(col - 1):
-            if temp[i][j] != hypo[j]:
-                gen[j] = hypo[j]
-                print(gen)
-                gen[j] = '?'
-
-
-
-
+s_final, g_final = learn(concepts, target)
+print("Final Specific Hypothesis:", s_final)
+print("Final General Hypothesis:", g_final)
