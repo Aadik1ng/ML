@@ -1,37 +1,32 @@
-#Program: Write a program to implement k-Nearest Neighbour algorithm to classify the iris data set. Print both correct and wrong predictions. Java/Python ML library classes can be used for this problem.
-
 from sklearn.datasets import load_iris
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 import numpy as np
 
+# Load Iris dataset
 iris = load_iris()
+X, y = iris.data, iris.target
+target_names = iris.target_names
 
-print("\nIRIS FEATURES \TARGET NAMES: \n", iris.target_names)
-for i, name in enumerate(iris.target_names):
-    print(f"\n[{i}]:[{name}]")
+# Split dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 
-print("\nIRIS DATA :\n", iris.data)
-
-X_train, X_test, y_train, y_test = train_test_split(iris.data, iris.target, random_state=0)
-
-print("\nX TRAIN \n", X_train)
-print("\nX TEST \n", X_test)
-print("\nY TRAIN \n", y_train)
-print("\nY TEST \n", y_test)
-
+# Train k-NN classifier
 kn = KNeighborsClassifier(n_neighbors=1)
 kn.fit(X_train, y_train)
 
+# New sample prediction
 x_new = np.array([[5, 2.9, 1, 0.2]])
 prediction = kn.predict(x_new)
-print("\nXNEW \n", x_new)
-print(f"\nPredicted target value: {prediction}")
-print(f"\nPredicted feature name: {iris.target_names[prediction][0]}")
+print(f"New sample: {x_new}\nPredicted target value: {prediction[0]} ({target_names[prediction][0]})")
 
+# Print predictions for the test set
+print("\nTest set predictions:")
 for x, actual in zip(X_test, y_test):
-    prediction = kn.predict([x])
-    print(f"\nActual:[{actual}][{iris.target_names[actual]}], Predicted:{prediction[0]}[{iris.target_names[prediction][0]}]")
+    pred = kn.predict([x])[0]
+    correct = "Correct" if pred == actual else "Wrong"
+    print(f"Actual: {target_names[actual]}, Predicted: {target_names[pred]} - {correct}")
 
-# Display test score
-print(f"\nTEST SCORE[ACCURACY]: {kn.score(X_test, y_test):.2f}\n")
+# Display test accuracy
+accuracy = kn.score(X_test, y_test)
+print(f"\nTest Accuracy: {accuracy:.2f}")
